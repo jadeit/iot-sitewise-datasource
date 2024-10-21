@@ -64,8 +64,7 @@ export interface SitewiseQuery extends DataQuery {
   region?: string; // aws region string
   responseFormat?: SiteWiseResponseFormat;
 
-  // Query Editor
-  expression?: string;
+  // QueryEditor
   editorMode?: QueryEditorMode;
 
   /** @deprecated -- this is migrated to assetIds */

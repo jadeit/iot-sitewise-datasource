@@ -64,9 +64,7 @@ export function SitewiseQueryEditor(props: Props) {
       <QueryEditorHeader<DataSource, SitewiseQuery, SitewiseOptions>
         {...props}
         enableRunButton
-        showAsyncQueryButtons
         extraHeaderElementRight={<QueryEditorModeToggle mode={editorMode!} onChange={onEditorModeChange} />}
-        // cancel={props.datasource.cancel} TODO: Implement cancel
       />
       <Space v={0.5} />
       <EditorRows>

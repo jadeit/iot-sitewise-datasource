@@ -14,7 +14,8 @@ import {
   AssetPropertyInfo,
   ListAssociatedAssetsQuery,
   isListAssociatedAssetsQuery,
-  ListTimeSeriesQuery
+  ListTimeSeriesQuery,
+  // SqlQuery as SiteWiseSQL,
 } from './types';
 
 export interface QueryTypeInfo extends SelectableValue<QueryType> {

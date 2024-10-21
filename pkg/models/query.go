@@ -18,6 +18,7 @@ const (
 	QueryTypeDescribeAssetModel   = "DescribeAssetModel"
 	QueryTypeListAssetProperties  = "ListAssetProperties"
 	QueryTypeListTimeSeries       = "ListTimeSeries"
+	QueryTypeSQL                  = "SQL"
 )
 
 const (
