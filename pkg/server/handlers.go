@@ -7,6 +7,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
 	"github.com/grafana/iot-sitewise-datasource/pkg/models"
 )
 
@@ -19,7 +20,6 @@ func processQueries(ctx context.Context, req *backend.QueryDataRequest, handler 
 	return &backend.QueryDataResponse{
 		Responses: res,
 	}
-
 }
 
 func (s *Server) HandleInterpolatedPropertyValue(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
@@ -312,16 +312,21 @@ func (s *Server) handleDescribeAssetModelQuery(ctx context.Context, req *backend
 }
 
 func (s *Server) handleExecuteQuery(ctx context.Context, req *backend.QueryDataRequest, q backend.DataQuery) backend.DataResponse {
-	log.DefaultLogger.FromContext(ctx).Debug("Running S.handleExecuteQuery")
 	query, err := models.GetExecuteQuery(&q)
 	if err != nil {
-		backend.Logger.Warn("Error un-marshalling query", "error", err)
+		log.DefaultLogger.FromContext(ctx).Warn("Error un-marshalling query", "error", err)
 		return DataResponseErrorUnmarshal(err)
+	}
+
+	query.RawSQL, err = sqlutil.Interpolate(&query.Query, s.Datasource.Macros())
+	if err != nil {
+		log.DefaultLogger.Warn("Error interpolating query", "error", err)
+		return backend.ErrDataResponse(backend.StatusBadRequest, "macro interpolate: "+err.Error())
 	}
 
 	frames, err := s.Datasource.HandleExecuteQuery(ctx, req, query)
 	if err != nil {
-		backend.Logger.Warn("Error executing query", "error", err)
+		log.DefaultLogger.FromContext(ctx).Warn("Error executing query", "error", err)
 		return DataResponseErrorRequestFailed(err)
 	}
 

@@ -3,17 +3,17 @@ import { CodeEditor } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from 'SitewiseDataSource';
 import { SitewiseQuery, SitewiseOptions, SqlQuery } from 'types';
+import { SitewiseCompletionProvider } from 'language/autoComplete';
 
 type Props = QueryEditorProps<DataSource, SitewiseQuery, SitewiseOptions>;
 
-export const firstLabelWith = 20;
-
 export function RawQueryEditor(props: Props) {
   const query = props.query as SqlQuery;
+  const defaultQuery = 'select $__selectAll from raw_time_series where $__unixEpochFilter(event_timestamp)';
+
+  query.rawSQL = query.rawSQL || defaultQuery;
 
   const onChange = (query: SqlQuery) => {
-    console.log(query.queryStatement);
-    console.log(props);
     props.onChange(query);
     props.onRunQuery();
   };
@@ -22,9 +22,13 @@ export function RawQueryEditor(props: Props) {
     <CodeEditor
       aria-label="SQL"
       language="sql"
-      value={query.queryStatement || ''}
-      onSave={(text) => onChange({ ...query, queryStatement: text })}
-      onBlur={(text) => onChange({ ...query, queryStatement: text })}
+      value={query.rawSQL}
+      onSave={(text) => onChange({ ...query, rawSQL: text })}
+      onBlur={(text) => onChange({ ...query, rawSQL: text })}
+      onBeforeEditorMount={(monaco) => {
+        SitewiseCompletionProvider.monaco = monaco;
+        monaco.languages.registerCompletionItemProvider('sql', SitewiseCompletionProvider);
+      }}
       height={'45vh'}
     />
   );
